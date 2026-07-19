@@ -13,9 +13,8 @@ A clean, responsive single-page web application designed to help people learn Mo
 
 ## Screenshots
 
-![Screenshot 1](assets/SCRN_1.png)
-![Screenshot 2](assets/SCRN_2.png)
-![Screenshot 3](assets/SCRN_3.png)
+<img src="assets/SCRN_1.png" width="49%" /> <img src="assets/SCRN_2.png" width="49%" />
+<img src="assets/SCRN_3.png" width="49%" />
 
 ## Tech Stack
 
