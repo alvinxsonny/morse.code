@@ -32,7 +32,7 @@ morse.code/
 │   ├── SCRN_1.png
 │   ├── SCRN_2.png
 │   └── SCRN_3.png
-├── index.html               # Main application
+├── index.html
 ├── .gitignore
 └── README.md
 ```
