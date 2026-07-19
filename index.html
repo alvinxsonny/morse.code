@@ -1,0 +1,2867 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Morse Code</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="logo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="logo.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="logo.png" />
+    <link rel="shortcut icon" href="logo.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        cursor: url("dot.png") 8 8, auto;
+      }
+
+      a,
+      button,
+      [role="button"],
+      input[type="button"],
+      input[type="submit"],
+      select,
+      label[for],
+      .key,
+      .tab-btn,
+      .difficulty-btn,
+      .action-btn,
+      .morse-btn,
+      .play-btn,
+      .settings-btn,
+      .hint-btn,
+      .skip-btn,
+      .nav-btn {
+        cursor: url("dot.png") 8 8, pointer !important;
+      }
+
+      body {
+        font-family: "Martian Mono", monospace;
+        background: linear-gradient(135deg, #e8ebf0 0%, #a8b5c8 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        color: #1a252f;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image:
+          radial-gradient(
+            circle at 20% 20%,
+            rgba(26, 37, 47, 0.1) 2px,
+            transparent 2px
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(26, 37, 47, 0.1) 2px,
+            transparent 2px
+          ),
+          radial-gradient(
+            circle at 20% 80%,
+            rgba(26, 37, 47, 0.1) 2px,
+            transparent 2px
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(26, 37, 47, 0.1) 2px,
+            transparent 2px
+          );
+        background-size:
+          80px 80px,
+          80px 80px,
+          80px 80px,
+          80px 80px,
+          60px 60px,
+          60px 60px;
+        background-position:
+          0 0,
+          0 0,
+          0 0,
+          0 0,
+          0 0,
+          0 0;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        flex: 1 0 auto;
+        width: 100%;
+      }
+
+      /* Hero Section Layout */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0;
+        box-sizing: border-box;
+      }
+
+      .hero-container {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 40px;
+        width: 100%;
+        align-items: center;
+      }
+
+      .hero-left {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 25px;
+      }
+
+      .hero-right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header {
+        text-align: left;
+        margin-bottom: 0;
+      }
+
+      .header h1 {
+        font-size: 2.8rem;
+        color: #1a252f;
+        margin-bottom: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 15px;
+      }
+
+      .header-icon {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        color: #3d4f5f;
+        font-weight: 500;
+        margin-bottom: 0;
+      }
+
+      .morse-info {
+        text-align: left;
+        margin-bottom: 0;
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+      }
+
+      .morse-info h3 {
+        font-size: 1.3rem;
+        color: #1a252f;
+        margin-bottom: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+      }
+
+      .info-icon {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+      }
+
+      .morse-info p {
+        font-size: 0.85rem;
+        line-height: 1.6;
+        color: #3d4f5f;
+        margin-bottom: 12px;
+        max-width: 100%;
+      }
+
+      .morse-info p:last-of-type {
+        margin-bottom: 0;
+      }
+
+      /* Credit styling */
+      .credit-text {
+        font-size: 0.8rem;
+        color: #5a6c7d;
+        border-left: 3px solid #3498db;
+        padding-left: 12px;
+        margin: 15px 0 0 0;
+        line-height: 1.5;
+      }
+
+      .credit-text a {
+        color: #2980b9;
+        text-decoration: underline;
+        font-weight: 700;
+        transition: color 0.2s ease;
+      }
+
+      .credit-text a:hover {
+        color: #3498db;
+      }
+
+      /* Creators gallery */
+      .creators-gallery {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .creator-profile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        border-radius: 12px;
+        padding: 10px;
+        width: 130px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .creator-profile:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .creator-img {
+        width: 108px;
+        height: 108px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-bottom: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .creator-name {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #1a252f;
+        text-align: center;
+      }
+
+      .creator-role {
+        font-size: 0.6rem;
+        color: #7f8c8d;
+        margin-top: 2px;
+      }
+
+      /* Reference Table Card */
+      .table-card {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 15px 35px rgba(20, 30, 40, 0.08);
+        width: 100%;
+        max-width: 480px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .table-card-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1a252f;
+        text-align: center;
+        border-bottom: 2px solid rgba(26, 37, 47, 0.08);
+        padding-bottom: 15px;
+      }
+
+      .reference-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .reference-table td {
+        padding: 16px 8px;
+        vertical-align: middle;
+      }
+
+      .reference-table tr {
+        border-bottom: 1px solid rgba(26, 37, 47, 0.08);
+      }
+
+      .reference-table tr:last-child {
+        border-bottom: none;
+      }
+
+      .table-label {
+        font-weight: 700;
+        color: #1a252f;
+        font-size: 0.9rem;
+        width: 35%;
+      }
+
+      .table-value {
+        color: #3d4f5f;
+        font-size: 0.85rem;
+        width: 65%;
+      }
+
+      .table-button-cell {
+        padding-top: 25px !important;
+        text-align: center;
+      }
+
+      .hero-practice-btn {
+        width: 100%;
+        padding: 14px 28px;
+        font-size: 1rem;
+        justify-content: center;
+      }
+
+      /* Custom Dropdown Selector */
+      .custom-select-wrapper {
+        position: relative;
+        user-select: none;
+        width: 100%;
+      }
+
+      .custom-select {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .custom-select-trigger {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #1a252f;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 8px;
+        cursor: url("dot.png") 8 8, pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 6px rgba(20, 30, 40, 0.05);
+      }
+
+      .custom-select-trigger:hover {
+        background: rgba(255, 255, 255, 0.95);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(20, 30, 40, 0.1);
+      }
+
+      .custom-select-trigger .arrow {
+        width: 8px;
+        height: 8px;
+        border-left: 2px solid #1a252f;
+        border-bottom: 2px solid #1a252f;
+        transform: rotate(-45deg) translateY(-2px);
+        transition: transform 0.2s ease;
+        margin-right: 2px;
+      }
+
+      .custom-select.open .custom-select-trigger .arrow {
+        transform: rotate(135deg) translateY(-2px);
+      }
+
+      .custom-options {
+        position: absolute;
+        display: block;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 8px;
+        margin-top: 5px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 10px 25px rgba(20, 30, 40, 0.12);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(-10px);
+        transition: all 0.2s ease;
+        z-index: 100;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .custom-select.open .custom-options {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: all;
+        transform: translateY(0);
+      }
+
+      .custom-option {
+        position: relative;
+        display: block;
+        padding: 10px 14px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #3d4f5f;
+        cursor: url("dot.png") 8 8, pointer;
+        transition: all 0.2s ease;
+      }
+
+      .custom-option:hover {
+        background: rgba(52, 152, 219, 0.1);
+        color: #2980b9;
+      }
+
+      .custom-option.selected {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        font-weight: 700;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-family: "Martian Mono", monospace;
+        font-weight: 700;
+        cursor: url("dot.png") 8 8, pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        outline: none;
+        background: rgba(255, 255, 255, 0.9);
+        color: #1a252f;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 2px 8px rgba(20, 30, 40, 0.15);
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(20, 30, 40, 0.25);
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border: 1px solid rgba(52, 152, 219, 0.3);
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+        box-shadow: 0 6px 16px rgba(52, 152, 219, 0.3);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        color: white;
+        border: 1px solid rgba(149, 165, 166, 0.3);
+      }
+
+      .btn-secondary:hover {
+        background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+        box-shadow: 0 6px 16px rgba(149, 165, 166, 0.3);
+      }
+
+      .btn svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      .morse-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+        margin-bottom: 40px;
+      }
+
+      .morse-item {
+        display: flex;
+        align-items: center;
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 2px 8px rgba(20, 30, 40, 0.15);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+        cursor: pointer;
+        will-change: transform;
+      }
+
+      .morse-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(20, 30, 40, 0.25);
+      }
+
+      .morse-item.playing {
+        background: rgba(52, 152, 219, 0.15);
+        border-color: rgba(52, 152, 219, 0.4);
+        transform: scale(1.02);
+      }
+
+      .character-box {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        font-weight: 700;
+        border-radius: 8px;
+        margin-right: 15px;
+        flex-shrink: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .morse-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .morse-code {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a252f;
+        margin-bottom: 6px;
+        font-family: "Martian Mono", monospace;
+      }
+
+      .morse-item.playing .morse-code {
+        color: #2980b9;
+      }
+
+      .morse-phrase {
+        font-size: 0.75rem;
+        color: #5a6c7d;
+        font-style: italic;
+        min-height: 18px;
+      }
+
+      .morse-phrase u {
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 2px;
+      }
+
+      .morse-item.playing .morse-phrase {
+        color: #34495e;
+      }
+
+      .aviation-item {
+        display: flex;
+        align-items: center;
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 2px 8px rgba(20, 30, 40, 0.15);
+        transition: transform 0.2s ease;
+      }
+
+      .aviation-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(20, 30, 40, 0.25);
+      }
+
+      .aviation-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .aviation-phonetic {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1a252f;
+        margin-bottom: 4px;
+        font-family: "Martian Mono", monospace;
+      }
+
+      .aviation-letter {
+        font-size: 0.8rem;
+        color: #5a6c7d;
+        font-weight: 400;
+      }
+
+      .play-icon {
+        margin-left: 12px;
+        opacity: 0.6;
+        transition: opacity 0.2s ease;
+        flex-shrink: 0;
+      }
+
+      .play-icon svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .morse-item:hover .play-icon {
+        opacity: 1;
+      }
+
+      .section-title {
+        font-size: 1.6rem;
+        color: #1a252f;
+        margin: 50px 0 25px 0;
+        text-align: center;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
+
+      .section-icon {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+      }
+
+      .audio-status {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        background: rgba(46, 204, 113, 0.9);
+        color: white;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+      }
+
+      .audio-status.show {
+        opacity: 1;
+      }
+
+      .footer {
+        flex-shrink: 0;
+        text-align: center;
+        padding: 20px 0;
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 255, 255, 0.35);
+        width: 100%;
+        margin-top: 60px;
+      }
+
+      .footer p {
+        font-size: 0.72rem;
+        color: #3d4f5f;
+        font-weight: 500;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .footer a {
+        color: #2980b9;
+        text-decoration: none;
+        font-weight: 700;
+        transition: color 0.2s ease;
+      }
+
+      .footer a:hover {
+        color: #3498db;
+      }
+
+      .section-separator {
+        height: 1px;
+        background: linear-gradient(90deg, rgba(26,37,47,0) 0%, rgba(26,37,47,0.15) 50%, rgba(26,37,47,0) 100%);
+        border: none;
+        margin: 50px 0;
+      }
+
+      .practice-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(232, 235, 240, 0.95) 0%, rgba(168, 181, 200, 0.95) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        overflow-y: auto;
+      }
+
+      .practice-container {
+        position: relative;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        border-radius: 24px;
+        padding: 35px;
+        box-shadow: 0 20px 50px rgba(20, 30, 40, 0.15);
+        max-width: 680px;
+        width: 100%;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .practice-container-scrollable {
+        overflow-y: auto;
+        padding-right: 5px;
+      }
+
+      /* Custom scrollbar for container */
+      .practice-container-scrollable::-webkit-scrollbar,
+      .history-list::-webkit-scrollbar {
+        width: 6px;
+      }
+      .practice-container-scrollable::-webkit-scrollbar-track,
+      .history-list::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+      }
+      .practice-container-scrollable::-webkit-scrollbar-thumb,
+      .history-list::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+      }
+
+      /* Welcome/Config panel styles */
+      .practice-config-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a252f;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
+
+      .practice-setup-section {
+        margin-bottom: 25px;
+        text-align: left;
+      }
+
+      .practice-setup-label {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #3d4f5f;
+        margin-bottom: 10px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .practice-selector-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      @media (max-width: 580px) {
+        .practice-selector-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .selector-card {
+        background: rgba(255, 255, 255, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-radius: 14px;
+        padding: 15px 10px;
+        cursor: url("dot.png") 8 8, pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 700;
+        color: #1a252f;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+      }
+
+      .selector-card:hover {
+        background: rgba(255, 255, 255, 0.85);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(20, 30, 40, 0.08);
+      }
+
+      .selector-card.active {
+        background: white;
+        border-color: #3498db;
+        box-shadow: 0 8px 20px rgba(52, 152, 219, 0.2);
+        color: #2980b9;
+      }
+
+      .selector-card svg {
+        width: 24px;
+        height: 24px;
+        stroke: currentColor;
+      }
+
+      .selector-card span {
+        font-size: 0.85rem;
+        display: block;
+      }
+
+      /* Scoreboard styles */
+      .scoreboard-container {
+        margin-top: 30px;
+        background: rgba(255, 255, 255, 0.45);
+        border-radius: 18px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        text-align: left;
+      }
+
+      .scoreboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .scoreboard-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a252f;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .scoreboard-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .metric-badge {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 12px;
+        padding: 10px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .metric-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2980b9;
+        display: block;
+      }
+
+      .metric-label {
+        font-size: 0.75rem;
+        color: #7f8c8d;
+        display: block;
+        text-transform: uppercase;
+      }
+
+      .history-list {
+        max-height: 150px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-right: 5px;
+      }
+
+      .history-item {
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 10px;
+        padding: 10px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .history-item-left {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .history-item-mode {
+        font-weight: 700;
+        color: #1a252f;
+      }
+
+      .history-item-meta {
+        color: #7f8c8d;
+        font-size: 0.7rem;
+      }
+
+      .history-item-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .history-item-score {
+        font-weight: 700;
+        color: #2ecc71;
+        font-size: 0.9rem;
+      }
+
+      .history-item-score.perfect {
+        color: #f1c40f;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .history-empty {
+        text-align: center;
+        color: #7f8c8d;
+        font-style: italic;
+        padding: 15px 0;
+        font-size: 0.85rem;
+      }
+
+      /* Active Round HUD */
+      .practice-hud {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .hud-stats-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .hud-badge {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #1a252f;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 6px 12px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      }
+
+      .hud-badge.streak {
+        background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+        color: white;
+        border: none;
+      }
+
+      .hud-badge.timer {
+        font-family: "Martian Mono", monospace;
+      }
+
+      /* Progress Bar */
+      .practice-progress-bar-container {
+        width: 100%;
+        height: 6px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+        margin-bottom: 25px;
+        overflow: hidden;
+      }
+
+      .practice-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
+        width: 0%;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+      }
+
+      /* Question Display */
+      .practice-question-type {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+
+      .practice-morse-display {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: #1a252f;
+        font-family: "Martian Mono", monospace;
+        margin-bottom: 30px;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.65);
+        border-radius: 18px;
+        padding: 15px 30px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.05);
+        position: relative;
+      }
+
+      .practice-letter-display {
+        font-size: 5rem;
+        font-weight: 700;
+        color: #1a252f;
+        margin-bottom: 30px;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.65);
+        border-radius: 18px;
+        padding: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.05);
+      }
+
+      .practice-letter-display .phrase {
+        font-size: 1rem;
+        color: #7f8c8d;
+        margin-top: 5px;
+        font-weight: normal;
+      }
+
+      /* Audio playback status / pulse */
+      .audio-pulse-btn {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 64px;
+        height: 64px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: url("dot.png") 8 8, pointer;
+        box-shadow: 0 6px 16px rgba(52, 152, 219, 0.3);
+        transition: all 0.2s ease;
+        margin: 10px 0 25px 0;
+      }
+
+      .audio-pulse-btn:hover {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+        box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+      }
+
+      .audio-pulse-btn.playing {
+        animation: audioPlayingPulse 1s infinite alternate;
+      }
+
+      @keyframes audioPlayingPulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+        }
+        100% {
+          transform: scale(1.1);
+          box-shadow: 0 0 0 15px rgba(52, 152, 219, 0);
+        }
+      }
+
+      .audio-pulse-btn svg {
+        width: 28px;
+        height: 28px;
+        fill: currentColor;
+      }
+
+      /* Input display & virtual keys */
+      .user-morse-live-display {
+        font-size: 2.2rem;
+        font-family: "Martian Mono", monospace;
+        min-height: 50px;
+        margin-bottom: 20px;
+        color: #2980b9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 4px;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 10px;
+        padding: 5px 15px;
+        width: 100%;
+        max-width: 320px;
+      }
+
+      .user-morse-live-display:empty::after {
+        content: "Type Morse...";
+        font-size: 1rem;
+        color: #95a5a6;
+        font-family: inherit;
+        letter-spacing: normal;
+      }
+
+      .morse-keypad {
+        display: flex;
+        gap: 15px;
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 20px;
+        justify-content: center;
+      }
+
+      .morse-key {
+        flex: 1;
+        height: 60px;
+        font-size: 1.8rem;
+        font-weight: 700;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.1);
+        background: white;
+        color: #1a252f;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        cursor: url("dot.png") 8 8, pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.1s ease;
+      }
+
+      .morse-key:active {
+        transform: translateY(2px);
+        box-shadow: none;
+        background: #f7f9fa;
+      }
+
+      .morse-key.dot {
+        font-size: 2.5rem;
+      }
+
+      .morse-key.dash {
+        font-size: 2.5rem;
+      }
+
+      .morse-key.delete {
+        background: #f5f7f8;
+        color: #e74c3c;
+      }
+
+      .morse-key.delete svg {
+        width: 24px;
+        height: 24px;
+        stroke: currentColor;
+      }
+
+      /* Review dialog */
+      .practice-review-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 24px;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+      }
+
+      .practice-review-container.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .review-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        color: white;
+      }
+
+      .review-icon.correct {
+        background: #2ecc71;
+        box-shadow: 0 6px 16px rgba(46, 204, 113, 0.3);
+      }
+
+      .review-icon.incorrect {
+        background: #e74c3c;
+        box-shadow: 0 6px 16px rgba(231, 76, 60, 0.3);
+      }
+
+      .review-icon svg {
+        width: 32px;
+        height: 32px;
+        stroke: currentColor;
+      }
+
+      .review-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1a252f;
+        margin-bottom: 10px;
+      }
+
+      .review-detail {
+        font-size: 1.1rem;
+        color: #5d6d7e;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+
+      .review-detail strong {
+        color: #1a252f;
+        font-family: "Martian Mono", monospace;
+        font-size: 1.3rem;
+      }
+
+      /* Completion / Results summary list */
+      .completion-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .completion-stat-card {
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 14px;
+        padding: 15px;
+        text-align: center;
+      }
+
+      .completion-stat-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #2980b9;
+        display: block;
+      }
+
+      .completion-stat-label {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        display: block;
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+
+      .practice-completion h3 {
+        font-size: 2.2rem;
+        color: #1a252f;
+        margin-bottom: 15px;
+        font-weight: 700;
+      }
+
+      .practice-completion p {
+        font-size: 1.05rem;
+        color: #3d4f5f;
+        margin-bottom: 25px;
+      }
+
+      .review-incorrect-box {
+        background: rgba(231, 76, 60, 0.05);
+        border: 1px solid rgba(231, 76, 60, 0.15);
+        border-radius: 14px;
+        padding: 15px;
+        margin-bottom: 30px;
+        text-align: left;
+      }
+
+      .review-incorrect-title {
+        font-weight: 700;
+        color: #c0392b;
+        font-size: 0.95rem;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+      }
+
+      .review-incorrect-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        max-height: 100px;
+        overflow-y: auto;
+      }
+
+      .review-incorrect-badge {
+        background: white;
+        border: 1px solid rgba(231, 76, 60, 0.2);
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #e74c3c;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .review-incorrect-badge span {
+        font-family: "Martian Mono", monospace;
+        color: #7f8c8d;
+        font-size: 0.75rem;
+        font-weight: normal;
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 0;
+        }
+
+        .hero {
+          min-height: auto;
+          padding: 40px 0;
+        }
+
+        .hero-container {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+
+        .header {
+          text-align: center;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+          flex-direction: column;
+          justify-content: center;
+          gap: 10px;
+        }
+
+        .header-icon {
+          width: 32px;
+          height: 32px;
+        }
+
+        .morse-info {
+          text-align: center;
+        }
+
+        .morse-info h3 {
+          justify-content: center;
+        }
+
+        .creators-gallery {
+          justify-content: center;
+        }
+
+        .table-card {
+          margin: 0 auto;
+        }
+
+        .morse-grid {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .morse-code {
+          font-size: 1.8rem;
+        }
+
+        .character-box {
+          width: 35px;
+          height: 35px;
+          font-size: 1rem;
+        }
+
+        .section-title {
+          font-size: 1.4rem;
+          margin: 40px 0 20px 0;
+        }
+
+        .practice-container {
+          padding: 20px;
+          margin: 10px;
+          max-height: 95vh;
+        }
+
+        .practice-config-title {
+          font-size: 1.6rem;
+        }
+
+        .practice-morse-display {
+          font-size: 2.5rem;
+          min-height: 80px;
+          padding: 15px;
+        }
+
+        .practice-letter-display {
+          font-size: 3.5rem;
+          min-height: 80px;
+        }
+
+        .scoreboard-metrics {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .morse-grid {
+          gap: 10px;
+        }
+
+        .morse-item {
+          padding: 15px;
+        }
+
+        .morse-code {
+          font-size: 1.6rem;
+        }
+
+        .character-box {
+          width: 32px;
+          height: 32px;
+          font-size: 0.9rem;
+          margin-right: 12px;
+        }
+
+        .practice-morse-display {
+          font-size: 2rem;
+          min-height: 50px;
+        }
+      }
+
+      .morse-item,
+      .aviation-item {
+        contain: layout style;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <section class="hero">
+        <div class="hero-container">
+          <div class="hero-left">
+            <div class="header">
+              <h1>
+                <svg
+                  class="header-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
+                Morse Code
+              </h1>
+              <p>Master the language of dots and dashes!</p>
+            </div>
+
+            <div class="morse-info">
+              <h3>
+                <svg
+                  class="info-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg>
+                About Morse Code
+              </h3>
+              <p>
+                Morse code was developed in the 1830s by Samuel Morse and Alfred Vail
+                for telegraph communication. This ingenious system revolutionized
+                long-distance communication and remained vital for maritime, aviation,
+                and amateur radio for over a century.
+              </p>
+              <p class="credit-text">
+                The learning mnemonic method implemented in this website is based on the video <a href="https://youtu.be/D8tPkb98Fkk?si=lawR6ZC267gxdw73" target="_blank">"LEARN MORSE CODE from a MEMORY CHAMP (in 15 minutes)"</a> by Memory Champion <strong>Nelson Dellis</strong>.
+              </p>
+              
+              <div class="creators-gallery">
+                <div class="creator-profile">
+                  <img src="samuel_morse.png" alt="Samuel Morse" class="creator-img" />
+                  <span class="creator-name">Samuel Morse</span>
+                  <span class="creator-role">Inventor</span>
+                </div>
+                <div class="creator-profile">
+                  <img src="alfred_vail.png" alt="Alfred Vail" class="creator-img" />
+                  <span class="creator-name">Alfred Vail</span>
+                  <span class="creator-role">Co-developer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-right">
+            <div class="table-card">
+              <h3 class="table-card-title">Reference & Controls</h3>
+              <table class="reference-table">
+                <tr>
+                  <td class="table-label">Dot (·)</td>
+                  <td class="table-value">Short signal</td>
+                </tr>
+                <tr>
+                  <td class="table-label">Dash (−)</td>
+                  <td class="table-value">Long signal (3x dot length)</td>
+                </tr>
+                <tr>
+                  <td class="table-label">Speed</td>
+                  <td class="table-value">
+                    <div class="custom-select-wrapper">
+                      <select id="wpm" style="display: none;">
+                        <option value="5">5 WPM - Beginner Friendly</option>
+                        <option value="12">12 WPM - Casual Use</option>
+                        <option value="15" selected>15 WPM - Amateur Radio</option>
+                        <option value="20">20 WPM - Military/Maritime</option>
+                        <option value="25">25 WPM - Experienced</option>
+                        <option value="30">30+ WPM - Contest Speed</option>
+                      </select>
+                      <div class="custom-select">
+                        <div class="custom-select-trigger">
+                          <span>15 WPM - Amateur Radio</span>
+                          <div class="arrow"></div>
+                        </div>
+                        <div class="custom-options">
+                          <span class="custom-option" data-value="5">5 WPM - Beginner</span>
+                          <span class="custom-option" data-value="12">12 WPM - Casual</span>
+                          <span class="custom-option selected" data-value="15">15 WPM - Amateur</span>
+                          <span class="custom-option" data-value="20">20 WPM - Military</span>
+                          <span class="custom-option" data-value="25">25 WPM - Expert</span>
+                          <span class="custom-option" data-value="30">30+ WPM - Contest</span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" class="table-button-cell">
+                    <button
+                      class="btn btn-primary hero-practice-btn"
+                      id="practiceBtn"
+                      onclick="showPracticeWelcome()"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M9 11H1v6h8v2l8-5-8-5v2z" />
+                      </svg>
+                      Practice
+                    </button>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-title">
+        <svg
+          class="section-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+          />
+          <polyline points="14,2 14,8 20,8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10,9 9,9 8,9" />
+        </svg>
+        Letters A-Z
+      </div>
+      <div class="morse-grid" id="letters-grid">
+        <!-- Letters will be populated by JavaScript -->
+      </div>
+
+      <div class="section-separator"></div>
+      <div class="section-title">
+        <svg
+          class="section-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+          <line x1="8" y1="21" x2="16" y2="21" />
+          <line x1="12" y1="17" x2="12" y2="21" />
+          <path d="M7 11h2v2H7z" />
+          <path d="M11 11h2v2h-2z" />
+          <path d="M15 11h2v2h-2z" />
+        </svg>
+        Numbers 0-9
+      </div>
+      <div class="morse-grid" id="numbers-grid">
+        <!-- Numbers will be populated by JavaScript -->
+      </div>
+
+      <div class="section-separator"></div>
+      <div class="section-title">
+        <svg
+          class="section-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+          />
+          <polyline points="3.27,6.96 12,12.01 20.73,6.96" />
+          <line x1="12" y1="22.08" x2="12" y2="12" />
+        </svg>
+        Aviation Alphabet (NATO Phonetic)
+      </div>
+      <div class="morse-grid" id="aviation-grid">
+        <!-- Aviation alphabet will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Practice Mode Screen -->
+    <div class="practice-screen" id="practiceScreen" style="display: none">
+      <div class="practice-container">
+        <div class="practice-container-scrollable">
+          
+          <!-- Phase 1: Setup/Configuration -->
+          <div id="practiceConfig" style="display: block">
+            <h2 class="practice-config-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:36px; height:36px;">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+              Morse Practice Mode
+            </h2>
+            
+            <div class="practice-setup-section">
+              <span class="practice-setup-label">Select Practice Mode</span>
+              <div class="practice-selector-grid">
+                <div class="selector-card active" id="modeMorseToText" onclick="selectPracticeMode('morse-to-text')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="4" y1="9" x2="20" y2="9" />
+                    <line x1="4" y1="15" x2="20" y2="15" />
+                    <circle cx="9" cy="9" r="1" fill="currentColor"/>
+                    <circle cx="15" cy="9" r="1" fill="currentColor"/>
+                  </svg>
+                  <span>Morse to Letter</span>
+                </div>
+                
+                <div class="selector-card" id="modeTextToMorse" onclick="selectPracticeMode('text-to-morse')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="4 17 10 11 4 5" />
+                    <line x1="12" y1="19" x2="20" y2="19" />
+                  </svg>
+                  <span>Letter to Morse</span>
+                </div>
+                
+                <div class="selector-card" id="modeAudioOnly" onclick="selectPracticeMode('audio-only')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.08" />
+                  </svg>
+                  <span>Audio Only</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="practice-setup-section">
+              <span class="practice-setup-label">Choose Character Set</span>
+              <div class="practice-selector-grid">
+                <div class="selector-card active" id="charsetLetters" onclick="selectPracticeCharset('letters')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                  </svg>
+                  <span>Letters (A-Z)</span>
+                </div>
+                
+                <div class="selector-card" id="charsetNumbers" onclick="selectPracticeCharset('numbers')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <line x1="9" y1="9" x2="15" y2="15" />
+                    <line x1="15" y1="9" x2="9" y2="15" />
+                  </svg>
+                  <span>Numbers (0-9)</span>
+                </div>
+                
+                <div class="selector-card" id="charsetBoth" onclick="selectPracticeCharset('both')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                    <path d="M8 12h8M12 8v8" />
+                  </svg>
+                  <span>Both Combined</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Scoreboard Dashboard -->
+            <div class="scoreboard-container">
+              <div class="scoreboard-header">
+                <span class="scoreboard-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;">
+                    <circle cx="12" cy="8" r="7" />
+                    <polyline points="8.21,13.89 7,23 12,20 17,23 15.79,13.88" />
+                  </svg>
+                  Past Attempts & Stats
+                </span>
+                <button class="btn btn-secondary" onclick="clearPracticeHistory()" style="padding: 4px 8px; font-size: 0.75rem;" id="clearHistoryBtn">
+                  Clear Scores
+                </button>
+              </div>
+              
+              <div class="scoreboard-metrics">
+                <div class="metric-badge">
+                  <span class="metric-value" id="statRounds">0</span>
+                  <span class="metric-label">Rounds Played</span>
+                </div>
+                <div class="metric-badge">
+                  <span class="metric-value" id="statAvgAccuracy">0%</span>
+                  <span class="metric-label">Avg Accuracy</span>
+                </div>
+                <div class="metric-badge">
+                  <span class="metric-value" id="statBestStreak">0</span>
+                  <span class="metric-label">Best Streak</span>
+                </div>
+              </div>
+              
+              <div class="history-list" id="historyList">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+            
+            <div class="btn-row" style="margin-top: 30px;">
+              <button class="btn btn-secondary" onclick="exitPractice()">Back to Menu</button>
+              <button class="btn btn-primary" onclick="startPractice()" style="padding: 14px 28px; font-size: 1rem;">
+                Launch Practice 🚀
+              </button>
+            </div>
+          </div>
+          
+          <!-- Phase 2: Active Round -->
+          <div id="practiceActive" style="display: none">
+            <div class="practice-hud">
+              <button class="btn btn-secondary" onclick="confirmExitPractice()" style="padding: 6px 12px; font-size: 0.8rem;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                Exit
+              </button>
+              
+              <div class="hud-stats-group">
+                <span class="hud-badge timer" id="hudTimer">⏱️ 0:00</span>
+                <span class="hud-badge streak" id="hudStreak">🔥 0</span>
+                <span class="hud-badge" id="hudProgress">0/26</span>
+                <span class="hud-badge" id="hudAccuracy">🎯 100%</span>
+              </div>
+            </div>
+            
+            <div class="practice-progress-bar-container">
+              <div class="practice-progress-bar" id="practiceProgressBar"></div>
+            </div>
+            
+            <div class="practice-content">
+              <!-- Visual Hint or Question Type Header -->
+              <div class="practice-question-type" id="practiceQuestionType">
+                What letter is this?
+              </div>
+              
+              <!-- Morse Display (For Morse to Text) -->
+              <div class="practice-morse-display" id="practiceMorseDisplay" style="display: none">
+                <!-- Morse characters go here -->
+              </div>
+              
+              <!-- Letter Display (For Text to Morse) -->
+              <div class="practice-letter-display" id="practiceLetterDisplay" style="display: none">
+                <span id="targetCharText">A</span>
+                <span class="phrase" id="targetCharPhrase">a.part</span>
+              </div>
+              
+              <!-- Listen Tone Trigger (For Audio-Only & Morse-to-Text) -->
+              <div>
+                <button class="audio-pulse-btn" id="practiceListenBtn" onclick="playCurrentMorse()" title="Listen Tone">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.08" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="practice-input-section">
+                <!-- TextInput for text answers -->
+                <div id="textInputContainer" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+                  <input
+                    type="text"
+                    id="practiceInput"
+                    maxlength="1"
+                    placeholder="?"
+                    autocomplete="off"
+                    style="width: 90px; height: 55px; font-size: 1.8rem; text-align: center; border-radius: 12px;"
+                  />
+                </div>
+                
+                <!-- Morse Pad for Text-to-Morse -->
+                <div id="morseInputContainer" style="display: none; flex-direction: column; align-items: center; width: 100%;">
+                  <div class="user-morse-live-display" id="userMorseLiveDisplay"></div>
+                  
+                  <div class="morse-keypad">
+                    <button class="morse-key dot" onclick="appendMorseChar('.')">.</button>
+                    <button class="morse-key dash" onclick="appendMorseChar('-')">-</button>
+                    <button class="morse-key delete" onclick="backspaceMorseChar()" title="Backspace">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
+                        <line x1="18" y1="9" x2="12" y2="15" />
+                        <line x1="12" y1="9" x2="18" y2="15" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="btn-row" style="width: 100%; max-width: 320px;">
+                  <button class="btn btn-secondary" onclick="skipQuestion()" style="flex: 1; justify-content: center;">Skip</button>
+                  <button class="btn btn-primary" onclick="submitPracticeAnswer()" style="flex: 1.5; justify-content: center;">Submit</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Mid-round Review Card overlay -->
+            <div class="practice-review-container" id="practiceReviewContainer">
+              <div class="review-icon" id="reviewIcon">
+                <!-- Checkmark or X svg -->
+              </div>
+              <div class="review-title" id="reviewTitle">Correct!</div>
+              <div class="review-detail" id="reviewDetail">The answer is A (.-)</div>
+              <button class="btn btn-primary" id="reviewNextBtn" onclick="closeReviewNext()" style="padding: 12px 30px;">
+                Next (Enter)
+              </button>
+            </div>
+          </div>
+          
+          <!-- Phase 3: Completion / Results Summary -->
+          <div class="practice-completion" id="practiceCompletion" style="display: none">
+            <h3 id="completionEmojiTitle">🎉 Practice Completed!</h3>
+            <p>Here is your performance breakdown:</p>
+            
+            <div class="completion-stats-grid">
+              <div class="completion-stat-card">
+                <span class="completion-stat-value" id="completionMode">-</span>
+                <span class="completion-stat-label">Mode</span>
+              </div>
+              <div class="completion-stat-card">
+                <span class="completion-stat-value" id="completionAccuracy">0%</span>
+                <span class="completion-stat-label">Accuracy</span>
+              </div>
+              <div class="completion-stat-card">
+                <span class="completion-stat-value" id="completionTime">0s</span>
+                <span class="completion-stat-label">Total Time</span>
+              </div>
+              <div class="completion-stat-card">
+                <span class="completion-stat-value" id="completionBestStreak">0</span>
+                <span class="completion-stat-label">Max Streak</span>
+              </div>
+            </div>
+            
+            <div class="review-incorrect-box" id="reviewIncorrectBox" style="display: none;">
+              <div class="review-incorrect-title">Characters to Review:</div>
+              <div class="review-incorrect-list" id="reviewIncorrectList">
+                <!-- Badges containing characters user got wrong -->
+              </div>
+            </div>
+            
+            <div class="btn-row">
+              <button class="btn btn-secondary" onclick="exitPractice()">Back to Menu</button>
+              <button class="btn btn-primary" onclick="restartPractice()">Try Again</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        MADE BY <a href="https://www.alvinsonny.me" target="_blank">ALVIN</a>
+      </p>
+    </div>
+
+    <div class="audio-status" id="audio-status">[>]</div>
+
+    <script>
+      const morseCode = {
+        A: ".-",
+        B: "-...",
+        C: "-.-.",
+        D: "-..",
+        E: ".",
+        F: "..-.",
+        G: "--.",
+        H: "....",
+        I: "..",
+        J: ".---",
+        K: "-.-",
+        L: ".-..",
+        M: "--",
+        N: "-.",
+        O: "---",
+        P: ".--.",
+        Q: "--.-",
+        R: ".-.",
+        S: "...",
+        T: "-",
+        U: "..-",
+        V: "...-",
+        W: ".--",
+        X: "-..-",
+        Y: "-.--",
+        Z: "--..",
+        0: "-----",
+        1: ".----",
+        2: "..---",
+        3: "...--",
+        4: "....-",
+        5: ".....",
+        6: "-....",
+        7: "--...",
+        8: "---..",
+        9: "----.",
+        " ": "/",
+      };
+
+      const learningPhrases = {
+        A: "a.<u>part</u>",
+        B: "<u>Bob</u>.is.the.man",
+        C: "<u>Co</u>.ca.<u>Co</u>.la",
+        D: "<u>Dog</u>.did.it",
+        E: "Eh?",
+        F: "Fetch.a.<u>fire</u>.man",
+        G: "<u>Good</u>.<u>Grav</u>.y",
+        H: "Hi.pi.ti.ho",
+        I: "Ai.Ai",
+        J: "Its.<u>Jazz</u>.<u>Jazz</u>.<u>Jazz</u>",
+        K: "<u>Kang</u>.a.<u>roo</u>",
+        L: "Los.<u>an</u>.ge.los",
+        M: "<u>Mmm</u>.<u>Mmm</u>",
+        N: "<u>Naught</u>.y",
+        O: "<u>Oh</u>.<u>My</u>.<u>God</u>",
+        P: "A.<u>poo</u>.<u>pie</u>.smell",
+        Q: "<u>God</u>.<u>save</u>.the.<u>Queen</u>",
+        R: "Ro.<u>ta</u>.tion",
+        S: "Si.si.si",
+        T: "<u>Tea</u>",
+        U: "U.ni.<u>form</u>",
+        V: "Vic.to.ry.<u>Veee</u>",
+        W: "The.<u>World</u>.<u>War</u>",
+        X: "<u>X</u>.marks.the.<u>spot</u>",
+        Y: "<u>Your</u>.a.<u>cool</u>.<u>dude</u>",
+        Z: "<u>Zing</u>.<u>Zang</u>.zo.zo",
+      };
+
+      const aviationAlphabet = {
+        A: "ALPHA",
+        B: "BRAVO",
+        C: "CHARLIE",
+        D: "DELTA",
+        E: "ECHO",
+        F: "FOXTROT",
+        G: "GOLF",
+        H: "HOTEL",
+        I: "INDIA",
+        J: "JULIET",
+        K: "KILO",
+        L: "LIMA",
+        M: "MIKE",
+        N: "NOVEMBER",
+        O: "OSCAR",
+        P: "PAPA",
+        Q: "QUEBEC",
+        R: "ROMEO",
+        S: "SIERRA",
+        T: "TANGO",
+        U: "UNIFORM",
+        V: "VICTOR",
+        W: "WHISKEY",
+        X: "X-RAY",
+        Y: "YANKEE",
+        Z: "ZULU",
+      };
+
+      function createAviationItem(character) {
+        const item = document.createElement("div");
+        item.className = "aviation-item";
+
+        const phonetic = aviationAlphabet[character];
+
+        item.innerHTML = `
+                <div class="character-box">${character}</div>
+                <div class="aviation-content">
+                    <div class="aviation-phonetic">${phonetic}</div>
+                    <div class="aviation-letter">Letter ${character}</div>
+                </div>
+            `;
+
+        return item;
+      }
+
+      let practiceMode = false;
+      let practiceModeType = "morse-to-text"; // 'morse-to-text', 'text-to-morse', 'audio-only'
+      let practiceCharset = "letters"; // 'letters', 'numbers', 'both'
+      let practiceQueue = [];
+      let incorrectQueue = [];
+      let practiceTotalCount = 0;
+      let correctCount = 0;
+      let incorrectCount = 0;
+      let currentStreak = 0;
+      let maxStreak = 0;
+      let currentLetter = "";
+      let userMorseInput = "";
+      let timeElapsed = 0;
+      let timerInterval = null;
+      let showingReview = false;
+
+      function selectPracticeMode(mode) {
+        practiceModeType = mode;
+        document.querySelectorAll("#practiceConfig .selector-card[id^='mode']").forEach((card) => {
+          card.classList.remove("active");
+        });
+        if (mode === "morse-to-text") document.getElementById("modeMorseToText").classList.add("active");
+        if (mode === "text-to-morse") document.getElementById("modeTextToMorse").classList.add("active");
+        if (mode === "audio-only") document.getElementById("modeAudioOnly").classList.add("active");
+      }
+
+      function selectPracticeCharset(charset) {
+        practiceCharset = charset;
+        document.querySelectorAll("#practiceConfig .selector-card[id^='charset']").forEach((card) => {
+          card.classList.remove("active");
+        });
+        if (charset === "letters") document.getElementById("charsetLetters").classList.add("active");
+        if (charset === "numbers") document.getElementById("charsetNumbers").classList.add("active");
+        if (charset === "both") document.getElementById("charsetBoth").classList.add("active");
+      }
+
+      function showPracticeWelcome() {
+        practiceMode = false;
+        clearInterval(timerInterval);
+
+        // Hide main layout
+        document.querySelector(".container").style.display = "none";
+        document.querySelector(".footer").style.display = "none";
+
+        // Show welcome setup panel, hide gameplay elements
+        document.getElementById("practiceScreen").style.display = "flex";
+        document.getElementById("practiceConfig").style.display = "block";
+        document.getElementById("practiceActive").style.display = "none";
+        document.getElementById("practiceCompletion").style.display = "none";
+
+        // Set initial classes for active options
+        selectPracticeMode(practiceModeType);
+        selectPracticeCharset(practiceCharset);
+
+        // Load statistics
+        loadPracticeHistory();
+      }
+
+      function startPractice() {
+        practiceMode = true;
+
+        const letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+        const numbers = ["0","1","2","3","4","5","6","7","8","9"];
+
+        let pool = [];
+        if (practiceCharset === "letters") {
+          pool = [...letters];
+        } else if (practiceCharset === "numbers") {
+          pool = [...numbers];
+        } else {
+          pool = [...letters, ...numbers];
+        }
+
+        shuffleArray(pool);
+        practiceQueue = pool;
+        practiceTotalCount = pool.length;
+        incorrectQueue = [];
+        correctCount = 0;
+        incorrectCount = 0;
+        currentStreak = 0;
+        maxStreak = 0;
+        timeElapsed = 0;
+        showingReview = false;
+        userMorseInput = "";
+
+        // UI transitions
+        document.getElementById("practiceConfig").style.display = "none";
+        document.getElementById("practiceActive").style.display = "block";
+        document.getElementById("practiceCompletion").style.display = "none";
+        document.getElementById("practiceReviewContainer").classList.remove("show");
+
+        // Start round timer
+        clearInterval(timerInterval);
+        document.getElementById("hudTimer").textContent = "⏱️ 0:00";
+        timerInterval = setInterval(() => {
+          timeElapsed++;
+          const mins = Math.floor(timeElapsed / 60);
+          const secs = timeElapsed % 60;
+          document.getElementById("hudTimer").textContent = `⏱️ ${mins}:${secs < 10 ? "0" : ""}${secs}`;
+        }, 1000);
+
+        nextQuestion();
+      }
+
+      function exitPractice() {
+        practiceMode = false;
+        clearInterval(timerInterval);
+
+        // Restore main screen
+        document.querySelector(".container").style.display = "block";
+        document.querySelector(".footer").style.display = "block";
+        document.getElementById("practiceScreen").style.display = "none";
+        document.getElementById("practiceInput").value = "";
+      }
+
+      function confirmExitPractice() {
+        if (confirm("Are you sure you want to exit? Your current session progress will be lost.")) {
+          exitPractice();
+        }
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      function nextQuestion() {
+        if (practiceQueue.length === 0) {
+          if (incorrectQueue.length > 0) {
+            practiceQueue = [...incorrectQueue];
+            incorrectQueue = [];
+            shuffleArray(practiceQueue);
+          } else {
+            showCompletion();
+            return;
+          }
+        }
+
+        currentLetter = practiceQueue.shift();
+        showingReview = false;
+        userMorseInput = "";
+
+        updatePracticeHUD();
+
+        const morseCodeVal = getMorseCode(currentLetter);
+        const displayMorse = document.getElementById("practiceMorseDisplay");
+        const displayLetter = document.getElementById("practiceLetterDisplay");
+        const listenBtn = document.getElementById("practiceListenBtn");
+        const textInputContainer = document.getElementById("textInputContainer");
+        const morseInputContainer = document.getElementById("morseInputContainer");
+        const textInput = document.getElementById("practiceInput");
+        const questionType = document.getElementById("practiceQuestionType");
+
+        // Reset visibility
+        displayMorse.style.display = "none";
+        displayLetter.style.display = "none";
+        listenBtn.style.display = "none";
+        textInputContainer.style.display = "none";
+        morseInputContainer.style.display = "none";
+
+        textInput.value = "";
+        document.getElementById("userMorseLiveDisplay").textContent = "";
+
+        if (practiceModeType === "morse-to-text") {
+          questionType.textContent = "What character is this?";
+          displayMorse.style.display = "flex";
+          displayMorse.textContent = morseCodeVal;
+          listenBtn.style.display = "inline-flex";
+          textInputContainer.style.display = "flex";
+
+          setTimeout(() => {
+            textInput.focus();
+          }, 100);
+
+          setTimeout(() => {
+            if (practiceMode && !showingReview) {
+              playMorseCode(morseCodeVal, listenBtn);
+            }
+          }, 300);
+
+        } else if (practiceModeType === "audio-only") {
+          questionType.textContent = "Listen and identify the character:";
+          displayMorse.style.display = "flex";
+          displayMorse.textContent = "? ? ?";
+          listenBtn.style.display = "inline-flex";
+          textInputContainer.style.display = "flex";
+
+          setTimeout(() => {
+            textInput.focus();
+          }, 100);
+
+          setTimeout(() => {
+            if (practiceMode && !showingReview) {
+              playMorseCode(morseCodeVal, listenBtn);
+            }
+          }, 300);
+
+        } else if (practiceModeType === "text-to-morse") {
+          questionType.textContent = "Translate to Morse code:";
+          displayLetter.style.display = "flex";
+          document.getElementById("targetCharText").textContent = currentLetter;
+
+          const phrase = learningPhrases[currentLetter];
+          const phraseEl = document.getElementById("targetCharPhrase");
+          if (phrase) {
+            phraseEl.style.display = "block";
+            phraseEl.innerHTML = phrase;
+          } else {
+            phraseEl.style.display = "none";
+          }
+
+          morseInputContainer.style.display = "flex";
+        }
+      }
+
+      function getMorseCode(letter) {
+        const morseMap = {
+          A: ".-",
+          B: "-...",
+          C: "-.-.",
+          D: "-..",
+          E: ".",
+          F: "..-.",
+          G: "--.",
+          H: "....",
+          I: "..",
+          J: ".---",
+          K: "-.-",
+          L: ".-..",
+          M: "--",
+          N: "-.",
+          O: "---",
+          P: ".--.",
+          Q: "--.-",
+          R: ".-.",
+          S: "...",
+          T: "-",
+          U: "..-",
+          V: "...-",
+          W: ".--",
+          X: "-..-",
+          Y: "-.--",
+          Z: "--..",
+          0: "-----",
+          1: ".----",
+          2: "..---",
+          3: "...--",
+          4: "....-",
+          5: ".....",
+          6: "-....",
+          7: "--...",
+          8: "---..",
+          9: "----.",
+        };
+        return morseMap[letter] || "";
+      }
+
+      function updatePracticeHUD() {
+        const completed = correctCount + incorrectCount;
+        const total = practiceTotalCount;
+        document.getElementById("hudProgress").textContent = `${completed}/${total}`;
+
+        const accuracy = completed > 0 ? Math.round((correctCount / completed) * 100) : 100;
+        document.getElementById("hudAccuracy").textContent = `🎯 ${accuracy}%`;
+        document.getElementById("hudStreak").textContent = `🔥 ${currentStreak}`;
+
+        const percent = total > 0 ? (completed / total) * 100 : 0;
+        document.getElementById("practiceProgressBar").style.width = `${percent}%`;
+      }
+
+      function playCurrentMorse() {
+        if (currentLetter && practiceMode) {
+          const morseCodeVal = getMorseCode(currentLetter);
+          const listenBtn = document.getElementById("practiceListenBtn");
+          playMorseCode(morseCodeVal, listenBtn);
+        }
+      }
+
+      function playFeedbackSound(isCorrect) {
+        initAudio();
+        const now = audioContext.currentTime;
+        if (isCorrect) {
+          playTone(880, now, 0.08);
+          playTone(1174.66, now + 0.09, 0.15); // D6 chime
+        } else {
+          playTone(220, now, 0.12);
+          playTone(180, now + 0.12, 0.2); // Low buzzer
+        }
+      }
+
+      function submitPracticeAnswer() {
+        if (showingReview) return;
+
+        let isCorrect = false;
+        let userInput = "";
+        const targetMorse = getMorseCode(currentLetter);
+
+        if (practiceModeType === "morse-to-text" || practiceModeType === "audio-only") {
+          userInput = document.getElementById("practiceInput").value.toUpperCase().trim();
+          if (!userInput) return;
+          isCorrect = (userInput === currentLetter);
+        } else {
+          userInput = userMorseInput.trim();
+          if (!userInput) return;
+          isCorrect = (userInput === targetMorse);
+        }
+
+        showingReview = true;
+
+        const reviewContainer = document.getElementById("practiceReviewContainer");
+        const reviewIcon = document.getElementById("reviewIcon");
+        const reviewTitle = document.getElementById("reviewTitle");
+        const reviewDetail = document.getElementById("reviewDetail");
+
+        if (isCorrect) {
+          correctCount++;
+          currentStreak++;
+          if (currentStreak > maxStreak) {
+            maxStreak = currentStreak;
+          }
+
+          reviewIcon.className = "review-icon correct";
+          reviewIcon.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          `;
+          reviewTitle.textContent = "Correct!";
+
+          if (practiceModeType === "text-to-morse") {
+            reviewDetail.innerHTML = `<strong>${currentLetter}</strong> is indeed <strong>${targetMorse}</strong>`;
+          } else {
+            reviewDetail.innerHTML = `<strong>${targetMorse}</strong> is <strong>${currentLetter}</strong>`;
+          }
+
+          playFeedbackSound(true);
+        } else {
+          incorrectCount++;
+          currentStreak = 0;
+          incorrectQueue.push(currentLetter);
+
+          reviewIcon.className = "review-icon incorrect";
+          reviewIcon.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          `;
+          reviewTitle.textContent = "Incorrect";
+
+          if (practiceModeType === "text-to-morse") {
+            reviewDetail.innerHTML = `<strong>${currentLetter}</strong> should be <strong>${targetMorse}</strong><br>You entered: <strong>${userInput || "[empty]"}</strong>`;
+          } else {
+            reviewDetail.innerHTML = `<strong>${targetMorse}</strong> is <strong>${currentLetter}</strong><br>You entered: <strong>${userInput || "[empty]"}</strong>`;
+          }
+
+          playFeedbackSound(false);
+        }
+
+        updatePracticeHUD();
+        reviewContainer.classList.add("show");
+
+        document.getElementById("reviewNextBtn").focus();
+      }
+
+      function closeReviewNext() {
+        document.getElementById("practiceReviewContainer").classList.remove("show");
+        nextQuestion();
+      }
+
+      function skipQuestion() {
+        if (showingReview) return;
+
+        incorrectCount++;
+        currentStreak = 0;
+        incorrectQueue.push(currentLetter);
+
+        updatePracticeHUD();
+        nextQuestion();
+      }
+
+      function appendMorseChar(char) {
+        if (userMorseInput.length < 10) {
+          userMorseInput += char;
+          document.getElementById("userMorseLiveDisplay").textContent = userMorseInput;
+        }
+      }
+
+      function backspaceMorseChar() {
+        if (userMorseInput.length > 0) {
+          userMorseInput = userMorseInput.slice(0, -1);
+          document.getElementById("userMorseLiveDisplay").textContent = userMorseInput;
+        }
+      }
+
+      function handleMorseKeydown(e) {
+        if (!practiceMode) return;
+
+        if (showingReview) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            closeReviewNext();
+          }
+          return;
+        }
+
+        if (practiceModeType === "text-to-morse") {
+          if (e.key === "." || e.key === "*") {
+            e.preventDefault();
+            appendMorseChar(".");
+          } else if (e.key === "-" || e.key === "_") {
+            e.preventDefault();
+            appendMorseChar("-");
+          } else if (e.key === "Backspace") {
+            e.preventDefault();
+            backspaceMorseChar();
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            submitPracticeAnswer();
+          }
+        } else {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            submitPracticeAnswer();
+          }
+        }
+      }
+
+      function restartPractice() {
+        document.getElementById("practiceCompletion").style.display = "none";
+        startPractice();
+      }
+
+      function saveRoundToHistory(round) {
+        let history = [];
+        try {
+          const stored = localStorage.getItem("morse_practice_history");
+          if (stored) {
+            history = JSON.parse(stored);
+          }
+        } catch (e) {
+          console.error("Failed to parse history from localStorage", e);
+        }
+
+        history.unshift(round);
+
+        if (history.length > 25) {
+          history = history.slice(0, 25);
+        }
+
+        try {
+          localStorage.setItem("morse_practice_history", JSON.stringify(history));
+        } catch (e) {
+          console.error("Failed to save history to localStorage", e);
+        }
+
+        loadPracticeHistory();
+      }
+
+      function loadPracticeHistory() {
+        let history = [];
+        try {
+          const stored = localStorage.getItem("morse_practice_history");
+          if (stored) {
+            history = JSON.parse(stored);
+          }
+        } catch (e) {
+          console.error("Failed to load history", e);
+        }
+
+        const totalRounds = history.length;
+        let avgAccuracy = 0;
+        let bestStreak = 0;
+
+        if (totalRounds > 0) {
+          const sumAccuracy = history.reduce((sum, item) => sum + item.accuracy, 0);
+          avgAccuracy = Math.round(sumAccuracy / totalRounds);
+          const streaks = history.map((h) => h.maxStreak || 0);
+          bestStreak = Math.max(...streaks, 0);
+        }
+
+        document.getElementById("statRounds").textContent = totalRounds;
+        document.getElementById("statAvgAccuracy").textContent = `${avgAccuracy}%`;
+        document.getElementById("statBestStreak").textContent = bestStreak;
+
+        const listContainer = document.getElementById("historyList");
+        listContainer.innerHTML = "";
+
+        if (totalRounds === 0) {
+          listContainer.innerHTML = '<div class="history-empty">No practice runs yet. Complete a round to see scores!</div>';
+          return;
+        }
+
+        history.forEach((item) => {
+          const dateStr = new Date(item.timestamp).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          const historyItem = document.createElement("div");
+          historyItem.className = "history-item";
+
+          const isPerfect = item.accuracy === 100;
+          const scoreClass = isPerfect ? "history-item-score perfect" : "history-item-score";
+          const scoreIcon = isPerfect ? "⭐ " : "";
+
+          historyItem.innerHTML = `
+            <div class="history-item-left">
+              <span class="history-item-mode">${item.mode} (${item.charset})</span>
+              <span class="history-item-meta">${dateStr} | Time: ${item.timeTaken}</span>
+            </div>
+            <div class="history-item-right">
+              <span class="${scoreClass}">${scoreIcon}${item.score}/${item.total} (${item.accuracy}%)</span>
+            </div>
+          `;
+
+          listContainer.appendChild(historyItem);
+        });
+      }
+
+      function clearPracticeHistory() {
+        if (confirm("Are you sure you want to clear your practice history?")) {
+          localStorage.removeItem("morse_practice_history");
+          loadPracticeHistory();
+        }
+      }
+
+      function showCompletion() {
+        clearInterval(timerInterval);
+
+        document.getElementById("practiceActive").style.display = "none";
+        document.getElementById("practiceCompletion").style.display = "block";
+
+        const completed = correctCount + incorrectCount;
+        const accuracy = completed > 0 ? Math.round((correctCount / completed) * 100) : 100;
+
+        const emojiTitle = document.getElementById("completionEmojiTitle");
+        if (accuracy === 100) {
+          emojiTitle.textContent = "🏆 Perfect Score!";
+        } else if (accuracy >= 80) {
+          emojiTitle.textContent = "🎉 Excellent Work!";
+        } else if (accuracy >= 50) {
+          emojiTitle.textContent = "👍 Good Effort!";
+        } else {
+          emojiTitle.textContent = "💪 Keep Practicing!";
+        }
+
+        let modeLabel = "Morse to Letter";
+        if (practiceModeType === "text-to-morse") modeLabel = "Letter to Morse";
+        if (practiceModeType === "audio-only") modeLabel = "Audio Only";
+
+        document.getElementById("completionMode").textContent = modeLabel;
+        document.getElementById("completionAccuracy").textContent = `${accuracy}%`;
+
+        const mins = Math.floor(timeElapsed / 60);
+        const secs = timeElapsed % 60;
+        document.getElementById("completionTime").textContent = `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+        document.getElementById("completionBestStreak").textContent = maxStreak;
+
+        const reviewBox = document.getElementById("reviewIncorrectBox");
+        const listContainer = document.getElementById("reviewIncorrectList");
+        listContainer.innerHTML = "";
+
+        const uniqueMissed = [...new Set(incorrectQueue)];
+        if (uniqueMissed.length > 0) {
+          reviewBox.style.display = "block";
+          uniqueMissed.forEach((char) => {
+            const badge = document.createElement("span");
+            badge.className = "review-incorrect-badge";
+            badge.innerHTML = `${char} <span>${getMorseCode(char)}</span>`;
+            listContainer.appendChild(badge);
+          });
+        } else {
+          reviewBox.style.display = "none";
+        }
+
+        saveRoundToHistory({
+          mode: modeLabel,
+          charset: practiceCharset === "letters" ? "Letters (A-Z)" : (practiceCharset === "numbers" ? "Numbers (0-9)" : "Both"),
+          score: correctCount,
+          total: completed,
+          accuracy: accuracy,
+          timeTaken: `${mins}:${secs < 10 ? "0" : ""}${secs}`,
+          maxStreak: maxStreak,
+          timestamp: Date.now(),
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("keydown", (e) => {
+          if (practiceMode) {
+            handleMorseKeydown(e);
+          }
+        });
+      });
+
+      let audioContext;
+      let currentPlayingElement = null;
+
+      function initAudio() {
+        if (!audioContext) {
+          audioContext = new (
+            window.AudioContext || window.webkitAudioContext
+          )();
+        }
+      }
+
+      function playMorseCode(code, element = null) {
+        if (currentPlayingElement) {
+          currentPlayingElement.classList.remove("playing");
+        }
+
+        if (element) {
+          element.classList.add("playing");
+          currentPlayingElement = element;
+        }
+
+        const audioStatus = document.getElementById("audio-status");
+        audioStatus.classList.add("show");
+
+        initAudio();
+
+        const wpm = parseInt(document.getElementById("wpm").value);
+        const dotDuration = 1200 / wpm;
+        const dashDuration = dotDuration * 3;
+        const pauseDuration = dotDuration;
+        const letterPause = dotDuration * 3;
+        const wordPause = dotDuration * 7;
+
+        let currentTime = audioContext.currentTime;
+
+        for (let i = 0; i < code.length; i++) {
+          const symbol = code[i];
+          const frequency = 600;
+
+          if (symbol === ".") {
+            playTone(frequency, currentTime, dotDuration / 1000);
+            currentTime += (dotDuration + pauseDuration) / 1000;
+          } else if (symbol === "-") {
+            playTone(frequency, currentTime, dashDuration / 1000);
+            currentTime += (dashDuration + pauseDuration) / 1000;
+          } else if (symbol === " ") {
+            currentTime += letterPause / 1000;
+          } else if (symbol === "/") {
+            currentTime += wordPause / 1000;
+          }
+        }
+
+        setTimeout(
+          () => {
+            if (element) {
+              element.classList.remove("playing");
+              if (currentPlayingElement === element) {
+                currentPlayingElement = null;
+              }
+            }
+            audioStatus.classList.remove("show");
+          },
+          (currentTime - audioContext.currentTime) * 1000,
+        );
+      }
+
+      function playTone(frequency, startTime, duration) {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = frequency;
+        oscillator.type = "sine";
+
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.01);
+        gainNode.gain.setValueAtTime(0.3, startTime + duration - 0.01);
+        gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration);
+      }
+
+      function createMorseItem(character) {
+        const item = document.createElement("div");
+        item.className = "morse-item";
+
+        const code = morseCode[character];
+        const phrase = learningPhrases[character] || "";
+
+        item.innerHTML = `
+                <div class="character-box">${character}</div>
+                <div class="morse-content">
+                    <div class="morse-code">${code}</div>
+                    <div class="morse-phrase">${phrase}</div>
+                </div>
+                <div class="play-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5,3 19,12 5,21"/>
+                    </svg>
+                </div>
+            `;
+
+        item.addEventListener("click", () => {
+          playMorseCode(code, item);
+        });
+
+        return item;
+      }
+
+      function populateGrids() {
+        const lettersGrid = document.getElementById("letters-grid");
+        const numbersGrid = document.getElementById("numbers-grid");
+
+        for (let i = 65; i <= 90; i++) {
+          const letter = String.fromCharCode(i);
+          lettersGrid.appendChild(createMorseItem(letter));
+        }
+
+        for (let i = 0; i <= 9; i++) {
+          numbersGrid.appendChild(createMorseItem(i.toString()));
+        }
+
+        const aviationGrid = document.getElementById("aviation-grid");
+        for (let i = 65; i <= 90; i++) {
+          const letter = String.fromCharCode(i);
+          aviationGrid.appendChild(createAviationItem(letter));
+        }
+      }
+
+      function initCustomSelect() {
+        const wrapper = document.querySelector(".custom-select-wrapper");
+        const select = document.getElementById("wpm");
+        const customSelect = wrapper.querySelector(".custom-select");
+        const trigger = wrapper.querySelector(".custom-select-trigger");
+        const triggerSpan = trigger.querySelector("span");
+        const options = wrapper.querySelectorAll(".custom-option");
+
+        trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          customSelect.classList.toggle("open");
+        });
+
+        options.forEach((option) => {
+          option.addEventListener("click", (e) => {
+            e.stopPropagation();
+            options.forEach((opt) => opt.classList.remove("selected"));
+            option.classList.add("selected");
+            const val = option.getAttribute("data-value");
+            select.value = val;
+            triggerSpan.textContent = option.textContent;
+            customSelect.classList.remove("open");
+
+            // Dispatch change event to select element
+            const event = new Event("change");
+            select.dispatchEvent(event);
+          });
+        });
+
+        document.addEventListener("click", () => {
+          customSelect.classList.remove("open");
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        populateGrids();
+        initCustomSelect();
+      });
+
+      document.addEventListener("click", () => {
+        if (audioContext && audioContext.state === "suspended") {
+          audioContext.resume();
+        }
+      });
+
+      if ("ontouchstart" in window) {
+        document.addEventListener("touchstart", function () {}, {
+          passive: true,
+        });
+      }
+    </script>
+  </body>
+</html>
